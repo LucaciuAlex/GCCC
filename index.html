@@ -5,60 +5,8 @@
 
 <body>
 
-	<button id="listButton">buton</button>
-
-	<div id="file-list">
-		
-	</div>
+	<a href="dist/index.html">indexu ala bun, futel-ai</a>
+	
 </body>
 
-<script src="azure-storage-blob.js" charset="utf-8"></script>
-
-<script>
-
-	const listButton = document.getElementById("listButton");
-	const fileList = document.getElementById("file-list");
-
-	const reportStatus = message => {
-		status.innerHTML += `${message}<br/>`;
-		status.scrollTop = status.scrollHeight;
-	}
-
-
-	const accountName = "guestbookreviews";
-	const sasString = "se=2021-06-10&sp=rwdlac&sv=2018-03-28&ss=b&srt=sco&sig=vds4LBqrkD0nCAOxLoT8bdtQcn0S1gt2hppBReI34xE%3D";
-	const containerName = "reviews";
-	const containerURL = new azblob.ContainerURL(
-		`https://${accountName}.blob.core.windows.net/${containerName}?${sasString}`,
-		azblob.StorageURL.newPipeline(new azblob.AnonymousCredential));
-
-
-
-	const listFiles = async () => {
-		fileList.size = 0;
-		fileList.innerHTML = "";
-		try {
-			reportStatus("Retrieving file list...");
-			let marker = undefined;
-			do {
-				const listBlobsResponse = await containerURL.listBlobFlatSegment(
-					azblob.Aborter.none, marker);
-				marker = listBlobsResponse.nextMarker;
-				const items = listBlobsResponse.segment.blobItems;
-				for (const blob of items) {
-					fileList.size += 1;
-					fileList.innerHTML += `<div>${blob.name}</div>`;
-				}
-			} while (marker);
-			if (fileList.size > 0) {
-				reportStatus("Done.");
-			} else {
-				reportStatus("The container does not contain any files.");
-			}
-		} catch (error) {
-			reportStatus(error.body.message);
-		}
-	};
-
-listButton.addEventListener("click", listFiles);
-</script>
+<script src="index.js" charset="utf-8"></script>
