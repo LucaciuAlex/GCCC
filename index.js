@@ -4,7 +4,7 @@ const { BlobServiceClient } = require("@azure/storage-blob");
 
 const fileList = document.getElementById("file-list");
 const fileInput = document.getElementById("file-input");
-
+const upload = document.getElementById("upload");
 const accountName = "guestbookreviews";
 const sasString = "se=2021-06-10&sp=rwdlac&sv=2018-03-28&ss=b&srt=sco&sig=vds4LBqrkD0nCAOxLoT8bdtQcn0S1gt2hppBReI34xE%3D";
 const containerName = "reviews";
@@ -62,20 +62,13 @@ const uploadFiles = async () => {
     // catch (error) {
     //     console.log(error.message);
     // }
+    const blockBlobClient = containerClient.getBlockBlobClient("test.json");
     const comment = document.getElementById("myTextarea").value;
     const msg = {photo, comment};
-    const options = {
-        contentSettings: {contentType: 'application/json'}
-    };
-
-    blobServiceClient.createBlockBlobFromText(
-        "post",
-        `${new Date().toUTCString()}.json`,
-        JSON.stringify(msg),
-        options,
-        function onResponse(error, result) {
-            console.log("done")
-        });
+    console.log(photo);
+    const data = JSON.stringify(msg);
+    const uploadBlobResponse = await blockBlobClient.upload(data, data.length);
+    console.log("Blob was uploaded successfully. requestId: ", uploadBlobResponse.requestId);
 }
 
 function savePhoto() {
@@ -84,6 +77,7 @@ function savePhoto() {
 
 
 fileInput.addEventListener("change", savePhoto);
+upload.addEventListener("click", uploadFiles);
 
 window.onload = (event) => {
     listFiles().then();
