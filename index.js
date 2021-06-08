@@ -28,9 +28,12 @@ const listFiles = async () => {
             fileList.size += 1;
             const url = `${commentUrlRoot}${blobItem.value.name}`;
             const data = await getDataFromBlob(url);
-            console.log(data);
-            fileList.innerHTML += '<div class="mb-1 image-container"><a href="'+ data.photo + '" target="_blank"><img  class="image-dim" src="' + data.photo + '" alt=""></a><span>' + data.comment + '</span></div>';
+            htmlList.push(data)
             blobItem = await iter.next();
+        }
+        while (htmlList.length) {
+            const data = htmlList.pop();
+            fileList.innerHTML += '<div class="mb-1 image-container"><a href="'+ data.photo + '" target="_blank"><img  class="image-dim" src="' + data.photo + '" alt=""></a><span>' + data.comment + '</span></div>';
         }
     } catch (error) {
         console.log(error);
