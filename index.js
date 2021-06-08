@@ -1,4 +1,6 @@
 const { BlobServiceClient } = require("@azure/storage-blob");
+// const azureStorage = require('azure-storage');
+
 
 const fileList = document.getElementById("file-list");
 const fileInput = document.getElementById("file-input");
@@ -10,6 +12,25 @@ const imageUrlRoot = "https://guestbookreviews.blob.core.windows.net/reviews/";
 const blobServiceClient = new BlobServiceClient(`https://${accountName}.blob.core.windows.net/?${sasString}`);
 const containerClient = blobServiceClient.getContainerClient(containerName);
 let photo;
+
+
+// const blobService = azureStorage.createBlobService(accountName, accountKey);
+// var Readable = require('stream').Readable
+// var msg = {
+//     a: "something",
+//     b: "anotherthing"
+// }
+// var stream = new Readable
+// stream.push(JSON.stringify(msg))
+// stream.push(null)
+// var option = {
+//     contentSettings: {contentType: 'application/json'}
+// }
+// stream.pipe(blobService.createWriteStreamToBlockBlob('container', 'something.json', option, function onResponse(error, result) {
+//     console.log("done")
+// }));
+
+
 
 const listFiles = async () => {
     try {
@@ -29,23 +50,38 @@ const listFiles = async () => {
 };
 
 const uploadFiles = async () => {
-    try {
-        const promises = [];
-        for (const file of fileInput.files) {
-            const blockBlobClient = containerClient.getBlockBlobClient(file.name);
-            promises.push(blockBlobClient.uploadBrowserData(file));
-        }
-        await Promise.all(promises);
-        await listFiles();
-    }
-    catch (error) {
-        console.log(error.message);
-    }
+    // try {
+    //     const promises = [];
+    //     for (const file of fileInput.files) {
+    //         const blockBlobClient = containerClient.getBlockBlobClient(file.name);
+    //         promises.push(blockBlobClient.uploadBrowserData(file));
+    //     }
+    //     await Promise.all(promises);
+    //     await listFiles();
+    // }
+    // catch (error) {
+    //     console.log(error.message);
+    // }
+    const comment = document.getElementById("myTextarea").value;
+    const msg = {photo, comment};
+    const options = {
+        contentSettings: {contentType: 'application/json'}
+    };
+
+    blobServiceClient.createBlockBlobFromText(
+        "post",
+        `${new Date().toUTCString()}.json`,
+        JSON.stringify(msg),
+        options,
+        function onResponse(error, result) {
+            console.log("done")
+        });
 }
 
 function savePhoto() {
     photo = fileInput.files[0];
 }
+
 
 fileInput.addEventListener("change", savePhoto);
 

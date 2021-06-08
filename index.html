@@ -2,14 +2,60 @@
 <head>
     <meta charset="utf-8">
     <title>Posts app</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .mb-1 {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        span {
+            text-align: center;
+            font-size: 17px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .button {
+            background-color: #426ff5;
+            border-radius: 0;
+            height: 40px;
+            width: 320px;
+            color: white;
+            border: none;
+            outline: none;
+            cursor: pointer;margin-bottom: 60px;
+            margin-top: 20px;
+        }
+
+        .myTextarea {
+            margin-top: 32px;
+            margin-bottom: 10px;
+            width: 320px;
+        }
+    </style>
 </head>
 
 <body>
-    <input type="file" id="file-input">
-    <label for="myTextarea"></label><textArea class="myTextarea" id="myTextarea" rows="3"></textArea>
-    <button id="listButton" onclick="uploadFiles()" class="button">Upload</button>
+    <div  class="container">
+        <input type="file" id="file-input">
+        <label for="myTextarea"></label><textArea class="myTextarea" id="myTextarea" rows="3"></textArea>
+        <button id="listButton" onclick="uploadFiles()" class="button">Upload</button>
+    </div>
+    <div id="file-list" class="container">
 
-    <div id="file-list" class="container"></div>
+    </div>
 </body>
 
 <script src="index.js" charset="utf-8"></script>
