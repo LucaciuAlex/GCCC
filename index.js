@@ -1,6 +1,4 @@
 const { BlobServiceClient } = require("@azure/storage-blob");
-// const azureStorage = require('azure-storage');
-
 
 const fileList = document.getElementById("file-list");
 const fileInput = document.getElementById("file-input");
@@ -12,24 +10,26 @@ const photoContainer = "reviews";
 const commentContainer = "post";
 
 const imageUrlRoot = "https://guestbookreviews.blob.core.windows.net/reviews/";
+const commentUrlRoot = "https://guestbookreviews.blob.core.windows.net/post/";
 const blobServiceClient = new BlobServiceClient(`https://${accountName}.blob.core.windows.net/?${sasString}`);
 
-const photosClient = blobServiceClient.getContainerClient(containerName);
-const commentClient = blobServiceClient.getContainerClient(containerName);
-
+const photosClient = blobServiceClient.getContainerClient(photoContainer);
+const commentClient = blobServiceClient.getContainerClient(commentContainer);
+const htmlList = [];
 let photo;
 
 
 const listFiles = async () => {
     try {
-        let iter = photosClient.listBlobsFlat();
+        let iter = commentClient.listBlobsFlat();
         let blobItem = await iter.next();
+        fileList.innerHTML = '';
         while (!blobItem.done) {
             fileList.size += 1;
-            console.log(blobItem);
-            const url = `${imageUrlRoot}${blobItem.value.name}`;
-            fileList.innerHTML +=
-                '<div class="mb-1 image-container"><a href="'+ url + '" target="_blank"><img src="' + url + '" alt="" class="image"></a><span>' + blobItem.value.name + '</span></div>';
+            const url = `${commentUrlRoot}${blobItem.value.name}`;
+            const data = await getDataFromBlob(url);
+            console.log(data);
+            fileList.innerHTML += '<div class="mb-1 image-container"><a href="'+ data.photo + '" target="_blank"><img  class="image-dim" src="' + data.photo + '" alt=""></a><span>' + data.comment + '</span></div>';
             blobItem = await iter.next();
         }
     } catch (error) {
@@ -38,29 +38,35 @@ const listFiles = async () => {
 };
 
 const uploadFiles = async () => {
-    // try {
-    //     const promises = [];
-    //     for (const file of fileInput.files) {
-    //         const blockBlobClient = photosClient.getBlockBlobClient(file.name);
-    //         promises.push(blockBlobClient.uploadBrowserData(file));
-    //     }
-    //     await Promise.all(promises);
-    //     await listFiles();
-    // }
-    // catch (error) {
-    //     console.log(error.message);
-    // }
-    const blockBlobClient = commentClient.getBlockBlobClient("test.json");
-    const comment = document.getElementById("myTextarea").value;
-    const msg = {photo, comment};
-    console.log(photo);
-    const data = JSON.stringify(msg);
-    const uploadBlobResponse = await blockBlobClient.upload(data, data.length);
-    console.log("Blob was uploaded successfully. requestId: ", uploadBlobResponse.requestId);
+    try {
+
+        const imageBlockBlobClient = photosClient.getBlockBlobClient(photo.name);
+        await imageBlockBlobClient.uploadBrowserData(photo);
+        const commentBlockBlobClient = commentClient.getBlockBlobClient(`${new Date().toUTCString()}.json`);
+        const comment = document.getElementById("myTextarea").value;
+        const msg = {photo: `${imageUrlRoot}${photo.name}`, comment};
+        const data = JSON.stringify(msg);
+        const blobOptions = {
+            // metadata: { 'contentType': 'application/json' }
+        blobHTTPHeaders: {blobContentType: 'application/json'}
+        };
+        const uploadBlobResponse = await commentBlockBlobClient.upload(data, data.length, blobOptions);
+        console.log("Blob was uploaded successfully. requestId: ", uploadBlobResponse.requestId);
+        await listFiles();
+
+    }
+    catch (error) {
+        console.log(error.message);
+    }
+
 }
 
 function savePhoto() {
     photo = fileInput.files[0];
+}
+
+async function getDataFromBlob(url) {
+    return await fetch(url).then(response => response.json());
 }
 
 
